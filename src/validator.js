@@ -1,4 +1,5 @@
 const workdir = "/tmp/";
+let child_process = require('child_process');
 let git = require("simple-git/promise")(workdir);
 let fsextra = require("fs-extra");
 
@@ -13,8 +14,12 @@ function fieldsFilled(json) {
 }
 
 function cleanup(json) {
+  console.log("\n");
   for(let repo in json) {
-    fsextra.removeSync(workdir + repo);
+    let cwd = workdir + repo;
+    let res = child_process.execSync("find -name '*.abap' | xargs cat | wc -l", {cwd: cwd});
+    console.log(repo + ": \t" + res.toString().trim() + " lines");
+    fsextra.removeSync(cwd);
   }
 }
 
@@ -24,7 +29,7 @@ function gitExists(json) {
   for(let repo in json) {
     all.push(git.silent(true)
       .clone(json[repo].git_url, repo)
-      .then(() => console.log(repo + ": git ok"))
+      .then(() => console.log(repo + ": \tgit ok"))
       .catch((err) => console.error(repo + " git failed: ", err)));
   }
 
