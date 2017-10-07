@@ -1,11 +1,17 @@
 const workdir = "/tmp/";
+let all = [];
+
+// vanilla deps
 let child_process = require('child_process');
+
+// external deps
 let git = require("simple-git/promise")(workdir);
 let fsextra = require("fs-extra");
+var request = require('sync-request');
 
-function fieldsFilled(json) {
+function checkFieldsFilled(json) {
   for(let repo in json) {
-    if(!json[repo].description) {
+    if (!json[repo].description) {
       throw repo + " description not filled";
     } else if(!json[repo].git_url) {
       throw repo + " git_url not filled";
@@ -13,34 +19,58 @@ function fieldsFilled(json) {
   }
 }
 
-function cleanup(json) {
-  console.log("\n");
+function github(json) {
+  for(let repo in json) {
+    let buffer = request('GET', 'https://api.github.com/repos/larshp/abapGit',
+      {'headers': {'user-agent': 'dotabap-validator'}});
+    let result = JSON.parse(buffer.getBody().toString());
+    json[repo].github = result;
+  }
+}
+
+function countLines(json) {
   for(let repo in json) {
     let cwd = workdir + repo;
-    let res = child_process.execSync("find -name '*.abap' | xargs cat | wc -l", {cwd: cwd});
-    console.log(repo + ": \t" + res.toString().trim() + " lines");
+    let buffer = child_process.execSync("find -name '*.abap' | xargs cat | wc -l", {cwd: cwd});
+    let lines = parseInt(buffer.toString().trim());
+    json[repo].lines = lines;
+//    console.log(repo + ": \t" + lines + " lines");
+  }
+}
+
+function cleanup(json) {
+  for(let repo in json) {
+    let cwd = workdir + repo;
     fsextra.removeSync(cwd);
   }
 }
 
 function gitExists(json) {
-  let all = [];
-
   for(let repo in json) {
     all.push(git.silent(true)
       .clone(json[repo].git_url, repo)
-      .then(() => console.log(repo + ": \tgit ok"))
+      .then()
       .catch((err) => console.error(repo + " git failed: ", err)));
   }
-
-  Promise.all(all).then(() => cleanup(json));
 }
 
-function validate(file) {
+function validate(file, generate = false) {
   let json = JSON.parse(file);
 
-  fieldsFilled(json);
+  checkFieldsFilled(json);
+
   gitExists(json);
+
+  Promise.all(all).then(() => {
+    if (generate) {
+      countLines(json);
+    }
+    cleanup(json);
+    if (generate) {
+      github(json);
+      console.log(JSON.stringify(json, null, ' '));
+    }
+  });
 }
 
 module.exports = validate;
