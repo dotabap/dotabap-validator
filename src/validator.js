@@ -9,48 +9,45 @@ let git = require("simple-git/promise")(workdir);
 let fsextra = require("fs-extra");
 var request = require('sync-request');
 
-function checkFieldsFilled(json) {
-  for(let repo in json) {
-    if (!json[repo].description) {
-      throw repo + " description not filled";
-    } else if(!json[repo].git_url) {
-      throw repo + " git_url not filled";
-    }
-  }
-}
-
-function github(json) {
-  for(let repo in json) {
-    let match = json[repo].git_url.match(/github.com\/(.*)\.git$/);
-    let url = 'https://api.github.com/repos/' + match[1];
+function github(result) {
+  for(let repo in result) {
+    let url = 'https://api.github.com/repos/' + repo;
     let buffer = request('GET', url,
-      {'headers': {'user-agent': 'dotabap-validator'}});
-    let result = JSON.parse(buffer.getBody().toString());
-    json[repo].github = result;
+      {'headers': {'user-agent': 'dotabap-validator',
+        "Authorization": "token blah"
+      }});
+    let github = JSON.parse(buffer.getBody().toString());
+    result[repo].repo = github;
   }
 }
 
 function countLines(json) {
-  for(let repo in json) {
+  let result = {};
+
+  for(let repo of json) {
     let cwd = workdir + repo;
     let buffer = child_process.execSync("find -name '*.abap' | xargs cat | wc -l", {cwd: cwd});
     let lines = parseInt(buffer.toString().trim());
-    json[repo].lines = lines;
+
+    result[repo] = {};
+    result[repo].lines = lines;
 //    console.log(repo + ": \t" + lines + " lines");
   }
+
+  return result;
 }
 
 function cleanup(json) {
-  for(let repo in json) {
+  for(let repo of json) {
     let cwd = workdir + repo;
     fsextra.removeSync(cwd);
   }
 }
 
 function gitExists(json) {
-  for(let repo in json) {
+  for(let repo of json) {
     all.push(git.silent(true)
-      .clone(json[repo].git_url, repo)
+      .clone("https://github.com/" + repo + ".git", repo)
       .then()
       .catch((err) => console.error(repo + " git failed: ", err)));
   }
@@ -59,18 +56,17 @@ function gitExists(json) {
 function validate(file, generate = false) {
   let json = JSON.parse(file);
 
-  checkFieldsFilled(json);
-
   gitExists(json);
 
   Promise.all(all).then(() => {
+    let result;
     if (generate) {
-      countLines(json);
+      result = countLines(json);
     }
     cleanup(json);
     if (generate) {
-      github(json);
-      console.log(JSON.stringify(json, null, ' '));
+      github(result);
+      console.log(JSON.stringify(result, null, ' '));
     }
   });
 }
