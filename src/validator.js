@@ -21,7 +21,9 @@ function checkFieldsFilled(json) {
 
 function github(json) {
   for(let repo in json) {
-    let buffer = request('GET', 'https://api.github.com/repos/larshp/abapGit',
+    let match = json[repo].git_url.match(/github.com\/(.*)\.git$/);
+    let url = 'https://api.github.com/repos/' + match[1];
+    let buffer = request('GET', url,
       {'headers': {'user-agent': 'dotabap-validator'}});
     let result = JSON.parse(buffer.getBody().toString());
     json[repo].github = result;
