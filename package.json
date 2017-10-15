@@ -9,7 +9,6 @@
   "license": "MIT",
   "dependencies": {
     "fs-extra": "^4.0.2",
-    "simple-git": "^1.79.0",
     "sync-request": "^4.1.0"
   }
 }

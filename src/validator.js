@@ -1,11 +1,9 @@
 const workdir = "/tmp/";
-let all = [];
 
 // vanilla deps
 let child_process = require('child_process');
 
 // external deps
-let git = require("simple-git/promise")(workdir);
 let fsextra = require("fs-extra");
 var request = require('sync-request');
 
@@ -31,7 +29,6 @@ function countLines(json) {
 
     result[repo] = {};
     result[repo].lines = lines;
-//    console.log(repo + ": \t" + lines + " lines");
   }
 
   return result;
@@ -46,29 +43,40 @@ function cleanup(json) {
 
 function gitExists(json) {
   for(let repo of json) {
-    all.push(git.silent(true)
-      .clone("https://github.com/" + repo + ".git", repo)
-      .then()
-      .catch((err) => console.error(repo + " git failed: ", err)));
+    let cwd = workdir + repo;
+    fsextra.ensureDirSync(cwd);
+    let url = "https://github.com/" + repo + ".git";
+    child_process.execSync("git clone " + url + " "+cwd, {cwd: cwd});
   }
 }
 
-function validate(file, generate = false) {
+function gitLog(json) {
+  let out = "";
+  for(let repo of json) {
+    out = out + child_process.execSync(
+      "git log --pretty=format:\"{\\\"repo\\\": \\\""+repo+"\\\", \\\"commit\\\": \\\"%H\\\", \\\"time\\\": \\\"%ad\\\"},\"",
+      {cwd: workdir + repo}) + "\n";
+  }
+  out = "[" + out.slice(0, -2) + "]";
+  console.log(out);
+}
+
+function validate(file, generate = false, log = false) {
   let json = JSON.parse(file);
 
   gitExists(json);
 
-  Promise.all(all).then(() => {
-    let result;
-    if (generate) {
-      result = countLines(json);
-    }
-    cleanup(json);
-    if (generate) {
-      github(result);
-      console.log(JSON.stringify(result, null, ' '));
-    }
-  });
+  let result;
+  if (generate) {
+    result = countLines(json);
+  } else if (log) {
+    gitLog(json);
+  }
+  cleanup(json);
+  if (generate) {
+    github(result);
+    console.log(JSON.stringify(result, null, ' '));
+  }
 }
 
 module.exports = validate;
