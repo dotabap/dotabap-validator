@@ -7,12 +7,13 @@ let child_process = require('child_process');
 let fsextra = require("fs-extra");
 var request = require('sync-request');
 
-function github(result) {
+
+function github(result, token) {
   for(let repo in result) {
-    let url = 'https://api.github.com/repos/' + repo;
+    const url = 'https://api.github.com/repos/' + repo;
     let buffer = request('GET', url,
       {'headers': {'user-agent': 'dotabap-validator',
-        "Authorization": "token blah"
+        "Authorization": "token " + token
       }});
     let github = JSON.parse(buffer.getBody().toString());
     result[repo].repo = github;
@@ -46,10 +47,11 @@ function gitExists(json) {
     let cwd = workdir + repo;
     fsextra.ensureDirSync(cwd);
     let url = "https://github.com/" + repo + ".git";
-    child_process.execSync("git clone " + url + " "+cwd, {cwd: cwd});
+    child_process.execSync("git clone --depth 1 " + url + " " + cwd, {cwd: cwd});
   }
 }
 
+/*
 function gitLog(json) {
   let out = "";
   for(let repo of json) {
@@ -60,23 +62,15 @@ function gitLog(json) {
   out = "[" + out.slice(0, -2) + "]";
   console.log(out);
 }
+*/
 
-function validate(file, generate = false, log = false) {
+function validate(file, token) {
   let json = JSON.parse(file);
-
   gitExists(json);
-
-  let result;
-  if (generate) {
-    result = countLines(json);
-  } else if (log) {
-    gitLog(json);
-  }
+  let result = countLines(json);
   cleanup(json);
-  if (generate) {
-    github(result);
-    console.log(JSON.stringify(result, null, ' '));
-  }
+  github(result, token);
+  console.log(JSON.stringify(result, null, ' '));
 }
 
 module.exports = validate;

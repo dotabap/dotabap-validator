@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const validate = require('./validator');
 
+/*
 function openFile(filename) {
   return ;
 }
+*/
 
 function parseArguments() {
   let arg = process.argv.slice(2);
@@ -13,27 +15,23 @@ function parseArguments() {
   }
 
   let filename = "";
-  let generate = false;
-  let log = false;
+  let token = "";
 
-  if (arg[0] === '-g') {
-    generate = true;
-    filename = arg[1];
-  } else if (arg[0] === '-l') {
-    log = true;
-    filename = arg[1];
-  } else {
-    filename = arg[0];
+  filename = arg[0];
+  token = arg[1];
+
+  if (!token) {
+    throw "Supply token";
   }
 
-  return {filename: filename, generate: generate, log: log}
+  return {filename, token}
 }
 
 function run() {
   let arg = parseArguments();
 
   try {
-    validate(fs.readFileSync(arg.filename, "utf8"), arg.generate, arg.log);
+    validate(fs.readFileSync(arg.filename, "utf8"), arg.token);
   } catch (e) {
     process.stderr.write(e + "\n");
   }
