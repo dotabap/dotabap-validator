@@ -1,18 +1,18 @@
 const workdir = "/tmp/";
 
 // vanilla deps
-let child_process = require('child_process');
+let childProcess = require("childProcess");
 
 // external deps
 let fsextra = require("fs-extra");
-var request = require('sync-request');
+let request = require("sync-request");
 
 
 function github(result, token) {
-  for(let repo in result) {
-    const url = 'https://api.github.com/repos/' + repo;
-    let buffer = request('GET', url,
-      {'headers': {'user-agent': 'dotabap-validator',
+  for (let repo in result) {
+    const url = "https://api.github.com/repos/" + repo;
+    let buffer = request("GET", url,
+      {"headers": {"user-agent": "dotabap-validator",
         "Authorization": "token " + token
       }});
     let github = JSON.parse(buffer.getBody().toString());
@@ -23,9 +23,9 @@ function github(result, token) {
 function countLines(json) {
   let result = {};
 
-  for(let repo of json) {
+  for (let repo of json) {
     let cwd = workdir + repo;
-    let buffer = child_process.execSync("find -name '*.abap' | xargs cat | wc -l", {cwd: cwd});
+    let buffer = childProcess.execSync("find -name '*.abap' | xargs cat | wc -l", {cwd: cwd});
     let lines = parseInt(buffer.toString().trim());
 
     result[repo] = {};
@@ -36,18 +36,18 @@ function countLines(json) {
 }
 
 function cleanup(json) {
-  for(let repo of json) {
+  for (let repo of json) {
     let cwd = workdir + repo;
     fsextra.removeSync(cwd);
   }
 }
 
 function gitExists(json) {
-  for(let repo of json) {
+  for (let repo of json) {
     let cwd = workdir + repo;
     fsextra.ensureDirSync(cwd);
     let url = "https://github.com/" + repo + ".git";
-    child_process.execSync("git clone --depth 1 " + url + " " + cwd, {cwd: cwd});
+    childProcess.execSync("git clone --depth 1 " + url + " " + cwd, {cwd: cwd});
   }
 }
 
@@ -55,7 +55,7 @@ function gitExists(json) {
 function gitLog(json) {
   let out = "";
   for(let repo of json) {
-    out = out + child_process.execSync(
+    out = out + childProcess.execSync(
       "git log --pretty=format:\"{\\\"repo\\\": \\\""+repo+"\\\", \\\"commit\\\": \\\"%H\\\", \\\"time\\\": \\\"%ad\\\"},\"",
       {cwd: workdir + repo}) + "\n";
   }
@@ -70,7 +70,7 @@ function validate(file, token) {
   let result = countLines(json);
   cleanup(json);
   github(result, token);
-  console.log(JSON.stringify(result, null, ' '));
+  console.log(JSON.stringify(result, null, " "));
 }
 
 module.exports = validate;

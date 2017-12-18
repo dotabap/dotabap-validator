@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const validate = require('./validator');
+const fs = require("fs");
+// const path = require("path");
+const validate = require("./validator");
 
 /*
 function openFile(filename) {
@@ -24,7 +24,7 @@ function parseArguments() {
     throw "Supply token";
   }
 
-  return {filename, token}
+  return {filename, token};
 }
 
 function run() {
