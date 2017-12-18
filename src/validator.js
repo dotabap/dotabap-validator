@@ -1,11 +1,12 @@
 const workdir = "/tmp/";
 
 // vanilla deps
-let childProcess = require("childProcess");
+const fs = require("fs");
+const childProcess = require("child_process");
 
 // external deps
-let fsextra = require("fs-extra");
-let request = require("sync-request");
+const fsextra = require("fs-extra");
+const request = require("sync-request");
 
 
 function github(result, token) {
@@ -64,13 +65,38 @@ function gitLog(json) {
 }
 */
 
+function checkFileExists(filename, json) {
+  let errors = [];
+
+  for (let repo of json) {
+    let check = workdir + repo + "/" + filename;
+    try {
+      fs.readFileSync(check);
+    } catch (e) {
+      errors.push(repo + ": " + filename + " not found");
+    }
+  }
+
+  return errors;
+}
+
 function validate(file, token) {
   let json = JSON.parse(file);
+  let errors = [];
+
   gitExists(json);
+
   let result = countLines(json);
+
+  errors = errors.concat(checkFileExists(".abapgit.xml", json));
+
   cleanup(json);
-  github(result, token);
-  console.log(JSON.stringify(result, null, " "));
+
+  if (token) {
+    github(result, token);
+  }
+
+  return {json: result, errors};
 }
 
 module.exports = validate;

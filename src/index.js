@@ -1,12 +1,5 @@
 const fs = require("fs");
-// const path = require("path");
 const validate = require("./validator");
-
-/*
-function openFile(filename) {
-  return ;
-}
-*/
 
 function parseArguments() {
   let arg = process.argv.slice(2);
@@ -20,21 +13,28 @@ function parseArguments() {
   filename = arg[0];
   token = arg[1];
 
-  if (!token) {
-    throw "Supply token";
-  }
-
   return {filename, token};
 }
 
 function run() {
   let arg = parseArguments();
+  let result;
 
-  try {
-    validate(fs.readFileSync(arg.filename, "utf8"), arg.token);
-  } catch (e) {
-    process.stderr.write(e + "\n");
+  result = validate(fs.readFileSync(arg.filename, "utf8"), arg.token);
+
+  if (result.errors.length > 0) {
+    for (let error of result.errors) {
+      process.stderr.write(error + "\n");
+    }
+    process.exit(1);
+  } else {
+    process.stdout.write(JSON.stringify(result.json, null, " ") + "\n");
   }
 }
 
-run();
+try {
+  run();
+} catch (e) {
+  process.stderr.write(e + "\n");
+  process.exit(1);
+}
