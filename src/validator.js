@@ -21,16 +21,30 @@ function github(result, token) {
   }
 }
 
-function countLines(json) {
+function analyzeFiles(json) {
   let result = {};
 
   for (let repo of json) {
+    result[repo] = {};
     let cwd = workdir + repo;
+    let dotabap = null;
+
     let buffer = childProcess.execSync("find -name '*.abap' | xargs cat | wc -l", {cwd: cwd});
     let lines = parseInt(buffer.toString().trim());
-
-    result[repo] = {};
     result[repo].lines = lines;
+
+    try {
+      dotabap = fs.readFileSync(cwd + "/.abapgit.xml");
+    } catch (e) {
+// ignore
+    }
+
+    if(dotabap) {
+      let found = dotabap.toString().match(/<STARTING_FOLDER>([\w/]+)<\/STARTING_FOLDER>/);
+      if (found) {
+        result[repo].startingFolder = found[1];
+      }
+    }
   }
 
   return result;
@@ -86,7 +100,7 @@ function validate(file, token) {
 
   gitExists(json);
 
-  let result = countLines(json);
+  let result = analyzeFiles(json);
 
   errors = errors.concat(checkFileExists(".abapgit.xml", json));
 
@@ -94,6 +108,8 @@ function validate(file, token) {
 
   if (token) {
     github(result, token);
+  } else {
+    console.log("no token, skipping");
   }
 
   return {json: result, errors};
