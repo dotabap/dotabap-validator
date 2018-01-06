@@ -1,13 +1,13 @@
-const workdir = "/tmp/";
+const workdir = "/tmp/dotabap/";
 
 // vanilla deps
 const fs = require("fs");
+const path = require("path");
 const childProcess = require("child_process");
 
 // external deps
 const fsextra = require("fs-extra");
 const request = require("sync-request");
-
 
 function github(result, token) {
   for (let repo in result) {
@@ -19,6 +19,52 @@ function github(result, token) {
     let github = JSON.parse(buffer.getBody().toString());
     result[repo].repo = github;
   }
+}
+
+function listFiles(dir, ignore) {
+  let files = fs.readdirSync(dir);
+  let result = [];
+
+  for (let file of files) {
+    if (file.charAt(0) === "."
+        || file === "package.devc.xml"
+        || file === "LICENSE"
+        || file === "zmarkdown_tests.abap" // todo, temporary workaround
+        || file === "README.md") {
+      continue;
+    }
+    let stat = fs.lstatSync(dir + file);
+    if (stat.isDirectory()) {
+      result = result.concat(listFiles(dir + file + path.sep, ignore));
+    } else if (stat.isFile()) {
+      if (ignore && ignore.indexOf("/" + file) >= 0) {
+// this is not completely correct, as the path is ignored
+        continue;
+      }
+      result.push(file);
+    }
+  }
+
+  return result;
+}
+
+function checkFileDuplicates(result) {
+  let errors = [];
+  let allFiles = [];
+
+  for (let repo in result) {
+    let files = listFiles(workdir + repo + result[repo].startingFolder, result[repo].ignoreFiles);
+
+    for (let file of files) {
+      if (allFiles.indexOf(file) >= 0) {
+        errors.push("Duplicate filename, " + repo + ": " + file);
+      } else {
+        allFiles.push(file);
+      }
+    }
+  }
+
+  return errors;
 }
 
 function analyzeFiles(json) {
@@ -39,10 +85,20 @@ function analyzeFiles(json) {
 // ignore
     }
 
-    if(dotabap) {
+    if (dotabap) {
       let found = dotabap.toString().match(/<STARTING_FOLDER>([\w/]+)<\/STARTING_FOLDER>/);
       if (found) {
         result[repo].startingFolder = found[1];
+      }
+
+// argh
+      let ignore = dotabap.toString().match(/<IGNORE>([\w.<>\/\s]+)<\/IGNORE>/);
+      if (ignore) {
+        result[repo].ignoreFiles = [];
+        const ignoreFiles = ignore[1].match(/<item>([\w./]+)<\/item>/g);
+        for (let ignoreFile of ignoreFiles) {
+          result[repo].ignoreFiles.push(ignoreFile.substring(6, ignoreFile.length - 7));
+        }
       }
     }
   }
@@ -58,6 +114,7 @@ function cleanup(json) {
 }
 
 function gitExists(json) {
+  fsextra.ensureDirSync(workdir);
   for (let repo of json) {
     let cwd = workdir + repo;
     fsextra.ensureDirSync(cwd);
@@ -103,6 +160,8 @@ function validate(file, token) {
   let result = analyzeFiles(json);
 
   errors = errors.concat(checkFileExists(".abapgit.xml", json));
+
+  errors = errors.concat(checkFileDuplicates(result));
 
   cleanup(json);
 
