@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "fs-extra": "^5.0.0",
-    "sync-request": "^5.0.0"
+    "sync-request": "^6.0.0"
   },
   "scripts": {
     "test": "eslint src/**/*.js"
