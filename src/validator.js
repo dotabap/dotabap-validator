@@ -29,6 +29,7 @@ function listFiles(dir, ignore) {
     if (file.charAt(0) === "."
         || file === "package.devc.xml"
         || file === "LICENSE"
+        || file === "LICENSE.md"        
         || file === "zmarkdown_tests.abap" // todo, temporary workaround
         || file === "README.md") {
       continue;
