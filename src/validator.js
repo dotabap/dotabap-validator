@@ -8,6 +8,7 @@ const childProcess = require("child_process");
 // external deps
 const fsextra = require("fs-extra");
 const request = require("sync-request");
+const abaplint = require("abaplint");
 
 function github(result, token) {
   for (let repo in result) {
@@ -42,7 +43,7 @@ function listFiles(dir, ignore) {
 // this is not completely correct, as the path is ignored
         continue;
       }
-      result.push(file);
+      result.push({path: dir, name: file});
     }
   }
 
@@ -57,10 +58,10 @@ function checkFileDuplicates(result) {
     let files = listFiles(workdir + repo + result[repo].startingFolder, result[repo].ignoreFiles);
 
     for (let file of files) {
-      if (allFiles.indexOf(file) >= 0) {
-        errors.push("Duplicate filename, " + repo + ": " + file);
+      if (allFiles.indexOf(file.name) >= 0) {
+        errors.push("Duplicate filename, " + repo + ": " + file.name);
       } else {
-        allFiles.push(file);
+        allFiles.push(file.name);
       }
     }
   }
@@ -152,6 +153,35 @@ function checkFileExists(filename, json) {
   return errors;
 }
 
+function parse(result) {
+  for (let repo in result) {
+    process.stderr.write("Parsing " + repo + "\n");
+    let afiles = [];
+    
+    let files = listFiles(workdir + repo + result[repo].startingFolder, result[repo].ignoreFiles);
+
+    for (let file of files) {
+      if(file.name.endsWith(".abap")) {
+        const buf = fs.readFileSync(file.path + file.name, 'utf8');
+        afiles.push(new abaplint.File(file.name, buf));
+      }
+    }
+    
+    let count = 0;
+    let issues = abaplint.Runner.run(afiles);
+    for (let issue of issues) {
+      if (issue.rule.getKey() === "parser_error") {
+        count = count + 1;
+      }
+    }
+
+    result[repo].parsing = {
+      version: abaplint.Runner.version(),
+      issues: count
+    };
+  }
+}
+
 function validate(file, token) {
   let json = JSON.parse(file);
   let errors = [];
@@ -163,6 +193,8 @@ function validate(file, token) {
   errors = errors.concat(checkFileExists(".abapgit.xml", json));
 
   errors = errors.concat(checkFileDuplicates(result));
+
+  parse(result);
 
   cleanup(json);
 
