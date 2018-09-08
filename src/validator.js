@@ -157,16 +157,16 @@ function parse(result) {
   for (let repo in result) {
     process.stderr.write("Parsing " + repo + "\n");
     let afiles = [];
-    
+
     let files = listFiles(workdir + repo + result[repo].startingFolder, result[repo].ignoreFiles);
 
     for (let file of files) {
-      if(file.name.endsWith(".abap")) {
-        const buf = fs.readFileSync(file.path + file.name, 'utf8');
+      if (file.name.endsWith(".abap")) {
+        const buf = fs.readFileSync(file.path + file.name, "utf8");
         afiles.push(new abaplint.File(file.name, buf));
       }
     }
-    
+
     let count = 0;
     let issues = abaplint.Runner.run(afiles);
     for (let issue of issues) {
