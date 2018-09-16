@@ -167,17 +167,27 @@ function parse(result) {
       }
     }
 
+    let config = abaplint.Config.getDefault();
+
     let count = 0;
-    let issues = abaplint.Runner.run(afiles);
-    for (let issue of issues) {
+    for (let issue of abaplint.Runner.run(afiles, config)) {
       if (issue.rule.getKey() === "parser_error") {
         count = count + 1;
       }
     }
 
+    config.setVersion(abaplint.Version.Cloud);
+    let cloud = 0;
+    for (let issue of abaplint.Runner.run(afiles, config)) {
+      if (issue.rule.getKey() === "parser_error") {
+        cloud = cloud + 1;
+      }
+    }
+
     result[repo].parsing = {
       version: abaplint.Runner.version(),
-      issues: count
+      issues: count,
+      cloud: cloud
     };
   }
 }
