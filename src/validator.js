@@ -170,7 +170,7 @@ function parse(result) {
     let config = abaplint.Config.getDefault();
 
     let count = 0;
-    for (let issue of abaplint.Runner.run(afiles, config)) {
+    for (let issue of new abaplint.Runner(afiles, config).findIssues()) {
       if (issue.rule.getKey() === "parser_error") {
         count = count + 1;
       }
@@ -178,8 +178,10 @@ function parse(result) {
 
     config.setVersion(abaplint.Version.Cloud);
     let cloud = 0;
-    for (let issue of abaplint.Runner.run(afiles, config)) {
-      if (issue.rule.getKey() === "parser_error") {
+    for (let issue of new abaplint.Runner(afiles, config).findIssues()) {
+      if (issue.rule.getKey() === "parser_error"
+          || issue.rule.getKey() === "cloud_types"
+          || issue.rule.getKey() === "generic") {
         cloud = cloud + 1;
       }
     }
