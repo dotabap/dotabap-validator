@@ -162,7 +162,7 @@ function parse(result) {
 
     for (let file of files) {
       const buf = fs.readFileSync(file.path + file.name, "utf8");
-      afiles.push(new abaplint.File(file.name, buf));
+      afiles.push(new abaplint.MemoryFile(file.name, buf));
     }
 
     let config = abaplint.Config.getDefault();
