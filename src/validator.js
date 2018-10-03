@@ -162,6 +162,7 @@ function parse(result) {
 
     for (let file of files) {
       const buf = fs.readFileSync(file.path + file.name, "utf8");
+      console.dir(abaplint);
       afiles.push(new abaplint.File(file.name, buf));
     }
 
