@@ -199,7 +199,7 @@ function validate(file, token, abap = true) {
   gitExists(json);
   let result = analyzeFiles(json);
 
-  if(abap) {
+  if (abap) {
     errors = errors.concat(checkFileExists(".abapgit.xml", json));
     errors = errors.concat(checkFileDuplicates(result));
     parse(result);
