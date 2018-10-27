@@ -192,19 +192,18 @@ function parse(result) {
   }
 }
 
-function validate(file, token) {
+function validate(file, token, abap = true) {
   let json = JSON.parse(file);
   let errors = [];
 
   gitExists(json);
-
   let result = analyzeFiles(json);
 
-  errors = errors.concat(checkFileExists(".abapgit.xml", json));
-
-  errors = errors.concat(checkFileDuplicates(result));
-
-  parse(result);
+  if(abap) {
+    errors = errors.concat(checkFileExists(".abapgit.xml", json));
+    errors = errors.concat(checkFileDuplicates(result));
+    parse(result);
+  }
 
   cleanup(json);
 

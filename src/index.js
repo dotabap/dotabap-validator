@@ -12,15 +12,16 @@ function parseArguments() {
 
   filename = arg[0];
   token = arg[1];
+  let abap = arg[2]!=="-n";
 
-  return {filename, token};
+  return {filename, token, abap};
 }
 
 function run() {
   let arg = parseArguments();
   let result;
 
-  result = validate(fs.readFileSync(arg.filename, "utf8"), arg.token);
+  result = validate(fs.readFileSync(arg.filename, "utf8"), arg.token, arg.abap);
 
   if (result.errors.length > 0) {
     for (let error of result.errors) {
