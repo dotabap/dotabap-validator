@@ -168,18 +168,18 @@ function parse(result) {
     let config = abaplint.Config.getDefault();
 
     let count = 0;
-    for (let issue of new abaplint.Runner(afiles, config).findIssues()) {
-      if (issue.rule.getKey() === "parser_error") {
+    for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
+      if (issue.getCode() === "parser_error") {
         count = count + 1;
       }
     }
 
     config.setVersion(abaplint.Version.Cloud);
     let cloud = 0;
-    for (let issue of new abaplint.Runner(afiles, config).findIssues()) {
-      if (issue.rule.getKey() === "parser_error"
-          || issue.rule.getKey() === "cloud_types"
-          || issue.rule.getKey() === "generic") {
+    for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
+      if (issue.getCode() === "parser_error"
+          || issue.getCode() === "cloud_types"
+          || issue.getCode() === "generic") {
         cloud = cloud + 1;
       }
     }
