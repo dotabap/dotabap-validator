@@ -168,11 +168,13 @@ function parse(result) {
     let config = abaplint.Config.getDefault();
 
     let count = 0;
+    /*
     for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
       if (issue.getCode() === "parser_error") {
         count = count + 1;
       }
     }
+    */
 
     config.setVersion(abaplint.Version.Cloud);
     let cloud = 0;
@@ -186,7 +188,7 @@ function parse(result) {
 
     result[repo].parsing = {
       version: abaplint.Runner.version(),
-      issues: count,
+//      issues: count,
       cloud: cloud
     };
   }
