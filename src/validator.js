@@ -167,8 +167,8 @@ function parse(result) {
 
     let config = abaplint.Config.getDefault();
 
-    let count = 0;
     /*
+    let count = 0;
     for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
       if (issue.getCode() === "parser_error") {
         count = count + 1;
