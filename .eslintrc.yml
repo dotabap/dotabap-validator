@@ -10,4 +10,5 @@ rules:
   eol-last: 0
   guard-for-in: 0
   comma-dangle: 0
+  linebreak-style: 0
   max-len: ["error", { "code": 130 }]
