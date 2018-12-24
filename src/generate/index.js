@@ -13,7 +13,7 @@ function parseArguments() {
   filename = arg[0];
   token = arg[1];
   let abap = arg.indexOf("-n") === -1;
-  console.trace(abap);
+//  console.trace(abap);
 
   return {filename, token, abap};
 }

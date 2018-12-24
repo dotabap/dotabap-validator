@@ -187,7 +187,7 @@ function parse(result) {
     }
 
     result[repo].parsing = {
-      version: abaplint.Runner.version(),
+      version: abaplint.Registry.abaplintVersion(),
 //      issues: count,
       cloud: cloud
     };
