@@ -170,7 +170,7 @@ function parse(result) {
     /*
     let count = 0;
     for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
-      if (issue.getCode() === "parser_error") {
+      if (issue.getKey() === "parser_error") {
         count = count + 1;
       }
     }
@@ -179,9 +179,9 @@ function parse(result) {
     config.setVersion(abaplint.Version.Cloud);
     let cloud = 0;
     for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
-      if (issue.getCode() === "parser_error"
-          || issue.getCode() === "cloud_types"
-          || issue.getCode() === "generic") {
+      if (issue.getKey() === "parser_error"
+          || issue.getKey() === "cloud_types"
+          || issue.getKey() === "generic") {
         cloud = cloud + 1;
       }
     }
