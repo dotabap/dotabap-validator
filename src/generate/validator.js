@@ -12,6 +12,7 @@ const abaplint = require("abaplint");
 
 function github(result, token) {
   for (let repo in result) {
+    process.stderr.write("GitHub fetch " + repo + "\n");
     const url = "https://api.github.com/repos/" + repo;
     let buffer = request("GET", url,
       {"headers": {"user-agent": "dotabap-validator",
