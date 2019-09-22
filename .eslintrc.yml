@@ -12,5 +12,6 @@ rules:
   comma-dangle: 0
   prefer-const: 0
   indent: 0
+  operator-linebreak: ["error", "before"]
   linebreak-style: 0
   max-len: ["error", { "code": 130 }]
