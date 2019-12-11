@@ -166,7 +166,7 @@ function parse(result) {
       afiles.push(new abaplint.MemoryFile(file.name, buf));
     }
 
-    let config = abaplint.Config.getDefault();
+    let config = abaplint.Config.getDefault(abaplint.Version.Cloud);
 
     /*
     let count = 0;
@@ -177,7 +177,6 @@ function parse(result) {
     }
     */
 
-    config.setVersion(abaplint.Version.Cloud);
     let cloud = 0;
     for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
       if (issue.getKey() === "parser_error"
