@@ -168,27 +168,18 @@ function parse(result) {
 
     let config = abaplint.Config.getDefault(abaplint.Version.Cloud);
 
-    /*
-    let count = 0;
-    for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
-      if (issue.getKey() === "parser_error") {
-        count = count + 1;
-      }
-    }
-    */
-
     let cloud = 0;
     for (let issue of new abaplint.Registry(config).addFiles(afiles).findIssues()) {
       if (issue.getKey() === "parser_error"
           || issue.getKey() === "cloud_types"
           || issue.getKey() === "generic") {
+        process.stderr.write(issue.getMessage());
         cloud = cloud + 1;
       }
     }
 
     result[repo].parsing = {
       version: abaplint.Registry.abaplintVersion(),
-//      issues: count,
       cloud: cloud
     };
   }
