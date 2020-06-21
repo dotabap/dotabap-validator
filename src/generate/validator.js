@@ -173,7 +173,9 @@ function parse(result) {
       if (issue.getKey() === "parser_error"
           || issue.getKey() === "cloud_types"
           || issue.getKey() === "generic") {
-        process.stderr.write(issue.getMessage());
+        if (cloud < 5) { // only output the first 5 per repo
+          process.stderr.write(issue.getMessage() + "\n");
+        }
         cloud = cloud + 1;
       }
     }
