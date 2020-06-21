@@ -8,7 +8,7 @@ const childProcess = require("child_process");
 // external deps
 const fsextra = require("fs-extra");
 const request = require("sync-request");
-const abaplint = require("abaplint");
+const abaplint = require("@abaplint/core");
 
 function github(result, token) {
   for (let repo in result) {
