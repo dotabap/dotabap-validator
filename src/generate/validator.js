@@ -188,7 +188,7 @@ function parse(result) {
 }
 
 function validate(file, token, abap = true) {
-  let json = JSON.parse(file);
+  let json = JSON.parse(file).sort();
   let errors = [];
 
   gitExists(json);
