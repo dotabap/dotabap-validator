@@ -59,7 +59,7 @@ function checkFileDuplicates(result) {
     let files = listFiles(workdir + repo + result[repo].startingFolder, result[repo].ignoreFiles);
 
     for (let file of files) {
-      if (allFiles.indexOf(file.name) >= 0) {
+      if (allFiles.indexOf(file.name) >= 0 && file.name.includes(".nspc.") === false) {
         errors.push("Duplicate filename, " + repo + ": " + file.name);
       } else {
         allFiles.push(file.name);
