@@ -8,8 +8,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@abaplint/core": "^2.95.6",
-    "fs-extra": "^10.1.0",
+    "@abaplint/core": "^2.95.7",
+    "fs-extra": "^11.1.0",
     "sync-request": "^6.1.0"
   },
   "mocha": {
@@ -23,13 +23,13 @@
   },
   "devDependencies": {
     "chai": "^4.3.7",
-    "eslint": "^8.27.0",
+    "eslint": "^8.33.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-standard": "^5.0.0",
-    "mocha": "^10.1.0"
+    "mocha": "^10.2.0"
   }
 }
