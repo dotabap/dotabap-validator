@@ -74,7 +74,6 @@ function analyzeFiles(json) {
   let result = {};
 
   for (let repo of json) {
-    console.log("Analyze " + repo);
     result[repo] = {};
     let cwd = workdir + repo;
     let dotabap = null;
@@ -172,7 +171,6 @@ function parse(result) {
     let files = listFiles(workdir + repo + result[repo].startingFolder, result[repo].ignoreFiles);
 
     for (let file of files) {
-      console.log(file.name);
       const buf = fs.readFileSync(file.path + file.name, "utf8");
       afiles.push(new abaplint.MemoryFile(file.name, buf));
     }
