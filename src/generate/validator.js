@@ -128,7 +128,7 @@ function gitExists(json) {
     let branch = "";
     if (repo === "SAP-samples/cloud-abap-rap") {
       branch = "-b abap-environment ";
-    } else if (repo === "SAP-samples/cloud-abap-rap") {
+    } else if (repo === "SAP-samples/abap-platform-fiori-feature-showcase") {
       branch = "-b ABAP-platform-cloud ";
     }
 
