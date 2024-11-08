@@ -122,7 +122,16 @@ function gitExists(json) {
     let cwd = workdir + repo;
     fsextra.ensureDirSync(cwd);
     let url = "https://github.com/" + repo + ".git";
-    childProcess.execSync("git clone --depth 1 " + url + " " + cwd, {cwd: cwd});
+
+    // branch workarounds
+    let branch = "";
+    if (repo === "SAP-samples/cloud-abap-rap") {
+      branch = "-b abap-environment ";
+    } else if (repo === "SAP-samples/cloud-abap-rap") {
+      branch = "-b ABAP-platform-cloud ";
+    }
+
+    childProcess.execSync("git clone " + branch + "--depth 1 " + url + " " + cwd, {cwd: cwd});
   }
 }
 
