@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "@abaplint/core": "^2.119.48",
-    "fs-extra": "^11.3.5",
+    "fs-extra": "^11.3.6",
     "sync-request": "^6.1.0"
   },
   "mocha": {
