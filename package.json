@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@abaplint/core": "^2.119.66",
+    "@abaplint/core": "^2.120.4",
     "fs-extra": "^11.3.6",
     "sync-request": "^6.1.0"
   },
